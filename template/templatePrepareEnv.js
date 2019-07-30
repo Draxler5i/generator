@@ -16,13 +16,15 @@ const createDir = (pathDir) => {
 };
 
 const createFile = (path, file, content) => {
-  if (!fs.existsSync(`${path}/${file}.js`)) {
-    if (file.split('.')[1] === "data") {
+  if (file.split('.')[1] === "data") {
+    if (!fs.existsSync(`${path}/${file}.json`)) {
       fs.appendFile(`${path}/${file}.json`, content, function (err) {
         if (err) throw err;
-        console.log(`File ${file}.json in ${path} is created successfully.`);
+        console.log(`File ${file} in ${path} is created successfully.`);
       });
-    } else {
+    }
+  } else {
+    if (!fs.existsSync(`${path}/${file}.js`)) {
       fs.appendFile(`${path}/${file}.js`, content, function (err) {
         if (err) throw err;
         console.log(`File ${file} in ${path} is created successfully.`);

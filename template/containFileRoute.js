@@ -1,6 +1,6 @@
 module.exports = getText = (args) => {
     const model = args.charAt(0).toUpperCase() + args.slice(1);
-    const text = `const ${model} = require('../../Library/Models/${args}Model');
+    const text = `const ${model} = require('../../models/${args}/${args}Model');
 
 module.exports.get = async (req, res ) => {
     try {
@@ -32,7 +32,7 @@ module.exports.post = async (req, res ) => {
     let item = new ${model}(req.body);
     try {
         let newItem = await item.save();
-        return res.status(201).json(newItem);
+        return res.status(201).json({ message: '${model} created!' });
     } catch (err) {
         res.status(500).send(err);
     }
@@ -44,7 +44,7 @@ module.exports.put = async (req, res ) => {
         if (!item) {
             return status.status(404).send({ error: 'Not Found Error ' + ${args} + ' not found'});
         } else {
-            res.status(200).send(item);
+            res.status(200).send({ message: '${model} updated!'});
         }
     } catch (err) {
         res.status(500).send({ error:'Unknown Server Error' });
@@ -53,11 +53,11 @@ module.exports.put = async (req, res ) => {
 
 module.exports.delete = async (req, res ) => {
     try {
-        let item = await controllerModel.findOneAndRemove({ _id: req.params.id });
+        let item = await ${model}.findOneAndRemove({ _id: req.params.id });
         if (!item) {
             return res.status(404).send({ error: 'Not Found Error ${args} not found' });
         } else {
-            return res.status(204).send(${args} + ' successfully deleted');
+            return res.status(203).json({ message: '${args} Successfully deleted' });
         }
     } catch (err) {
         return res.status(500).send('Unknown server error, Unknown server error when trying to delete ${args}');

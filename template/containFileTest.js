@@ -19,8 +19,8 @@ describe('Get all list of ${args}', () => {
     test('Must be return all ${args}', async (done) =>{
         try {
             let result = await request(app).get('/${args}');
-            expect(result.body).toMatchObject([]);
             expect(result.status).toBe(200);    
+            // expect(result.body).toMatchObject([]);
             done();
         } catch (error) {
             done.fail(error);
@@ -35,9 +35,9 @@ describe('${args} get by ID, return one element', () => {
             let item = new ${argsModel}();
             item.save();
 
-            const response = await request(app).get('/'+item._id);
+            const response = await request(app).get('/${args}/'+item._id);
             expect(response.status).toBe(200);
-            expect(response.body).toMatchObject({_id: item._id});
+            // expect(response.body).toMatchObject({ });
             done();
         } catch (error) {
             done.fail(error);
@@ -52,18 +52,11 @@ describe('${args} get by ID, with an id of object does not exist', () => {
             let item = {
                 _id: "13safs3wrmk56kj564k"
             };        
-            const response = await request(app).get('/'+item._id);
-            expect(response.status).toBe(500);
-            expect(response.body).toMatchObject(
-                {
-                    message: 'Cast to ObjectId failed for value \""+item._id+"\" at path \"_id\" for model \"${args}\"',
-                    name: "CastError",
-                    stringValue: item._id,
-                    kind: "ObjectId",
-                    value: item._id,
-                    path: "_id"
-                }
-            )
+            const response = await request(app).get('/${args}/'+item._id);
+            expect(response.status).toBe(404);
+            // expect(response.body).toMatchObject({
+            //
+            //     });
             done();
         } catch (error) {
             done.fail(error);
@@ -76,9 +69,9 @@ describe('Method post, after should send the ${args} object and compare', () => 
     test('Should response with the new ${args}', async (done) => {
         try {
             const new${args} = { };
-            const response = await request(app).post('/').send(new${args});
+            const response = await request(app).post('/${args}').send(new${args});
             expect(response.status).toBe(201);
-            expect(response.body).toMatchObject({});
+            // expect(response.body).toMatchObject({});
             done();
         } catch (error) {
             done.fail(error);
@@ -95,9 +88,9 @@ describe('Method put, after should send the a message', () => {
             item.save();
 
             let update${args} = { }
-            const response = await request(app).put('/'+item._id).send(update${args});
+            const response = await request(app).put('/${args}/'+item._id).send(update${args});
             expect(response.status).toBe(200);
-            expect(response.body).toMatchObject({});
+            // expect(response.body).toMatchObject({});
             done();
         } catch (error) {
             done.fail(error);
@@ -116,14 +109,11 @@ describe('Method put, after should send the new data, with wrong ID', () => {
             let update${args} = { };
             //ID not exist in DB
             const id = "2i43iusay34nm1214";
-            const response = await request(app).put('/'+id).send(update${args});
+            const response = await request(app).put('/${args}/'+id).send(update${args});
             expect(response.status).toBe(500);
-            expect(response.body).toMatchObject({
-                    title: "Unknown Server Error",
-                    messages: [
-                        'Unknow server error when updating ${args} with id '+id
-                    ]
-                });
+            // expect(response.body).toMatchObject({
+            //
+            //     });
             done();
         } catch (error) {
             done.fail(error);
@@ -140,9 +130,9 @@ describe('Method delete, should send a string verication for delete', () => {
             let item = new ${argsModel}(${args});
             item.save();
 
-            const response = await request(app).delete('/'+item._id);
-            expect(response.status).toBe(204);
-            expect(response.body).toMatchObject({});
+            const response = await request(app).delete('/${args}/'+item._id);
+            expect(response.status).toBe(203);
+            // expect(response.body).toMatchObject({});
             done();
         } catch (error) {
             done.fail(error);
@@ -160,14 +150,11 @@ describe('Method delete of unknow ID', () => {
             item.save();
 
             const id = '5ceeae0e96665d29c824d12easxz'
-            const response = await request(app).delete('/'+id);
+            const response = await request(app).delete('/${args}/'+id);
             expect(response.status).toBe(500);
-            expect(response.body).toMatchObject({
-                    "title": "Unknown server error",
-                    "messages": [
-                       'Unknown server error when trying to delete ${args} with id '+id
-                    ]
-                })
+            // expect(response.body).toMatchObject({
+            //         
+            //     });
             done();
         } catch (error) {
             done.fail(error);
