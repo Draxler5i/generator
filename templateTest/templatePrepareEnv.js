@@ -2,35 +2,33 @@ const fs = require('fs');
 const args = process.argv.slice(2)[0];
 const dirTest = `${__dirname}/../__tests__/${args}`;
 const dirRoute = `${__dirname}/../routes/${args}`;
+const dirModel = `${__dirname}/../models/${args}`;
 const containTest = require('./containFileTest')(args);
 const containRoute = require('./containFileRoute')(args);
 const containIndex = require('./containFileIndex')(args);
+const containModel = require('./containFileModel')(args);
 
-if (!fs.existsSync(dirTest)) {
-  fs.mkdirSync(dirTest);
-}
+const createDir = (pathDir) => {
+  if (!fs.existsSync(pathDir)) {
+    fs.mkdirSync(pathDir);
+  }
+};
 
-if (!fs.existsSync(`${dirTest}/${args}.test.js`)) {
-  fs.appendFile(`${dirTest}/${args}.test.js`, containTest, function (err) {
-    if (err) throw err;
-    console.log('File in test is created successfully.');
-  });
-}
+const createFile = (path, file, content) => {
+  if (!fs.existsSync(`${path}/${file}.js`)) {
+    fs.appendFile(`${path}/${file}.js`, content, function (err) {
+      if (err) throw err;
+      console.log(`File ${file} in ${path} is created successfully.`);
+    });
+  }
+};
 
-if (!fs.existsSync(dirRoute)) {
-  fs.mkdirSync(dirRoute);
-}
+createDir(dirTest);
+createFile(dirTest, `${args}.test`, containTest);
 
-if (!fs.existsSync(`dirRoute/${args}.js`)) {
-  fs.appendFile(`${dirRoute}/controller.js`, containRoute, function (err) {
-    if (err) throw err;
-    console.log(`File ${args}.js in routes is created successfully.`);
-  });
-}
+createDir(dirRoute);
+createFile(dirRoute, `controller`, containRoute);
+createFile(dirRoute, `index`, containIndex);
 
-if (!fs.existsSync(`dirRoute/index.js`)) {
-  fs.appendFile(`${dirRoute}/index.js`, containIndex, function (err) {
-    if (err) throw err;
-    console.log('File index in routes is created successfully.');
-  });
-}
+createDir(dirModel);
+createFile(dirModel, `${args}`, containModel);
