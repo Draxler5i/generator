@@ -1,0 +1,24 @@
+{
+  "name": "TDD",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/jest --watchAll",
+    "test-watch": "node_modules/.bin/jest --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb-memory-server": "^5.1.9",
+    "mongoose": "^5.6.6"
+  },
+  "devDependencies": {
+    "fs": "0.0.1-security",
+    "jest": "^24.8.0",
+    "supertest": "^4.0.2"
+  }
+}
