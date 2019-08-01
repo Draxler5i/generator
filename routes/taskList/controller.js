@@ -5,7 +5,7 @@ module.exports.get = async (req, res ) => {
         if (req.params.id) {
             let item = await TaskList.findById(req.params.id)
                 .exec((err, taskLists) => {
-                    if (!err) {
+                    if (taskLists) {
                         res.status(200).send(taskLists);
                     } else {
                         return res.status(404).json({ message: 'No such' + TaskList });
