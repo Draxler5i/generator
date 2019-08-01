@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const uniqueValidator = require('mongoose-unique-validator');
 
 const TaskListSchema = new Schema({
     name: { type: String, required: true, unique: true },
@@ -9,4 +10,5 @@ const TaskListSchema = new Schema({
     notes: { type : String }
 });
 
+TaskListSchema.plugin(uniqueValidator);
 module.exports = mongoose.model('TaskList', TaskListSchema);
