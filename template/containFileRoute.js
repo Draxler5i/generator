@@ -14,7 +14,7 @@ module.exports.get = async (req, res ) => {
                     }
                 });
         } else {
-            let items = await ${model}.find()
+            let items = await ${model}.find({})
                 .exec((err, ${args}) => {
                     if (!err) {
                         res.status(200).send(${args});

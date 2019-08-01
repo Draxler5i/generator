@@ -28,6 +28,20 @@ describe('Get all list of ${args}', () => {
     });
 });
 
+// test('It should response the GET method with 200 status and return a Array of ${args}', async (done) => {
+//     try {
+//         const response = await request(app).get("/${args}");
+//         expect(response.status).toBe(200);
+//         expect(response.body).toEqual(expect.any(Array));
+//         expect(response.body).toMatchObject([sampleService]);
+//         expect(response.body.length).toBe(1);
+//         validateJsonHeaders(response.header);
+//         done();
+//     } catch (error) {
+//         done.fail(error);
+//     }
+// });
+
 //GETBYID
 describe('${args} get by ID, return one element', () => {
     test('Should response only one object ${args}', async (done) => {

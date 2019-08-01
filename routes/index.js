@@ -1,17 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const taskList = require('./taskList/taskList.route');
-const user = require('./user/');
-const book = require('./book/');
-const car = require('./car');
-const bike = require('./bike');
-const table = require('./table');
+const taskList = require('./taskList/');
+const github = require('./github');
+const msTeamsMessage = require('../middlewares/MsTeamsMessage');
+const dbLog = require('../middlewares/logDataBase');
 
+// router.use(dbLog, msTeamsMessage);
 router.use('/tasklist', taskList);
-router.use('/user', user);
-router.use('/book', book);
-router.use('/car', car);
-router.use('/bike', bike);
-router.use('/table', table);
+// router.use('/github', github);
 
 module.exports = router;
