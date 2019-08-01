@@ -2,30 +2,30 @@
     {
         "name": "name",
         "description": "test",
-        "status": "test",
+        "status": "In progress",
         "notes": "test"
     },
     {
         "name": "programming",
         "description": "test",
-        "status": "test",
+        "status": "In progress",
         "notes": "test"
     },
     {
-        "name": "name",
+        "name": "test3",
         "description": "test",
-        "status": "test",
+        "status": "Done",
         "notes": "test"
     },
     {
-        "name": "name",
+        "name": "test4",
         "description": "test",
-        "status": "test",
+        "status": "Done",
         "notes": "test"
     },
     {
-        "name": "name",
+        "name": "test5",
         "description": "test",
-        "status": "status"
+        "status": "To Do"
     }
 ]
