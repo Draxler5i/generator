@@ -1,6 +1,6 @@
 const TaskList = require('../../models/taskList/taskListModel');
 
-module.exports.get = async (req, res ) => {
+module.exports.get = async (req, res) => {
     try {
         if (req.params.id) {
             let item = await TaskList.findById(req.params.id)
@@ -26,30 +26,31 @@ module.exports.get = async (req, res ) => {
     }
 };
 
-module.exports.post = async (req, res ) => {
+module.exports.post = async (req, res) => {
     let item = new TaskList(req.body);
     try {
         let newItem = await item.save();
-        return res.status(201).json({ message: 'TaskList created!' });
+        return res.status(201).json(newItem);
     } catch (err) {
-        res.status(500).send(err);
+        res.status(400).send({ message: err.message });
+        // res.status(400).send(err);
     }
 };
 
-module.exports.put = async (req, res ) => {
+module.exports.put = async (req, res) => {
     try {
         let item = await TaskList.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
         if (!item) {
-            return status.status(404).send({ error: 'Not Found Error ' + taskList + ' not found'});
+            return res.status(400).json({ error: 'Not Found Error ' + item + ' not found' });
         } else {
-            res.status(200).send({ message: 'TaskList updated!'});
+            return res.status(200).json(item);
         }
     } catch (err) {
-        res.status(500).send({ error:'Unknown Server Error' });
+        return res.status(500).json({ error: 'Unknown Server Error' });
     }
 };
 
-module.exports.delete = async (req, res ) => {
+module.exports.delete = async (req, res) => {
     try {
         let item = await TaskList.findOneAndRemove({ _id: req.params.id });
         if (!item) {
