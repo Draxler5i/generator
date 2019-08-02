@@ -69,25 +69,22 @@ describe('Deleting taskLists', () => {
 });
 
 
-//#####################################API
 describe('Get all list of taskList', () => {
     test('Must be return all taskList', async (done) => {
         try {
             let result = await request(app).get('/taskList');
             expect(result.status).toBe(200);
             let numberOfTasks = result.body.length;
-            result.body.forEach(element => {
-                expect(element).toHaveProperty("name");
+            result.body.map(item=>{
+                let currentItem = initialData.find(i => {
+                    return (i && i._id && i._id.toString() === item._id.toString())
+                });
+                delete currentItem._id;
+                expect(item).toMatchObject(currentItem);
             });
             expect(numberOfTasks).toEqual(5);
             expect(result.body).toEqual(expect.any(Array));
-            // result.body.forEach(element => {
-            //     var task = new TaskList(element);
-            //     task.validate(function (err) {
-            //         expect(err).toBeNull();
-            //         done();
-            //     });
-            // });
+
             done();
         } catch (error) {
             done.fail(error);
