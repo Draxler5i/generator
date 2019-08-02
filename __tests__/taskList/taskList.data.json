@@ -26,11 +26,13 @@
     {
         "name": "name5",
         "description": "test5",
-        "status": "To Do"
+        "status": "To Do",
+        "notes": "test5"
     },
     {
         "name": "name6",
         "description": "test5",
-        "status": "To Do"
+        "status": "To Do",
+        "notes": "test6"
     }
 ]
