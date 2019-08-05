@@ -49,7 +49,7 @@ module.exports = {
         dbURI = 'mongodb://localhost/users';
         break;
     }
-    return mongoose.connect(dbURI, { useNewUrlParser: true });
+    return mongoose.connect(dbURI, { useNewUrlParser: true,  useFindAndModify: false });
   },
   disconnect: (done) => {
     mongoose.disconnect(done);

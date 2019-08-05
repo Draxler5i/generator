@@ -6,7 +6,7 @@ const { Schema } = mongoose;
 const uniqueValidator = require('mongoose-unique-validator');
 
 const ${schema} = new Schema({
-    name: { type: String }
+    name: { type: String, unique: true }
 });
 
 ${schema}.plugin(uniqueValidator);

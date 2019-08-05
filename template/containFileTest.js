@@ -1,179 +1,165 @@
 module.exports = getText = (args) => {
     const argsModel = args.charAt(0).toUpperCase() + args.slice(1);
     const text = `const app = require('../../app');
-const request = require('supertest');
-const mongoDB = require('../../database/database');
-const ${argsModel} = require('../../models/${args}/${args}Model');
-const initialData = require('./${args}.data.json');
-
-beforeEach(async () => {
-    await mongoDB.connect();
-    await ${argsModel}.collection.insert(initialData);
-});
-
-afterEach((done) => {
-    mongoDB.disconnect(done);
-});
-
-describe('Get all list of ${args}', () => {
-    test('Must be return all ${args}', async (done) =>{
-        try {
-            let result = await request(app).get('/${args}');
-            expect(result.status).toBe(200);    
-            // expect(result.body).toMatchObject([]);
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
+    const request = require('supertest');
+    const mongoDB = require('../../database/database');
+    const currentModel = require('../../models/taskList/taskListModel');
+    const initialData = require('./taskList.data.json');
+    
+    //Parameters
+    const modelName = 'Task';
+    const route = '/tasklist';
+    const initialDataCount = initialData.length;
+    const NON_EXISTING_ID = '111111111111000000000000';
+    let invalidData = {
+        "name": "",
+        "description": "",
+        "status": "",
+        "notes": ""
+    };
+    let newData = {
+        "name": "New Name",
+        "description": "test",
+        "status": "In progress",
+        "notes": "test"
+    };
+    let updatedData = {
+        "name": "Task Updated",
+        "description": "Description Updated",
+        "status": "Status Updated",
+        "notes": "Notes updated"
+    }
+    
+    //****************************/
+    
+    beforeEach(async () => {
+        await mongoDB.connect();
+        await currentModel.collection.insertMany(initialData);
     });
-});
-
-// test('It should response the GET method with 200 status and return a Array of ${args}', async (done) => {
-//     try {
-//         const response = await request(app).get("/${args}");
-//         expect(response.status).toBe(200);
-//         expect(response.body).toEqual(expect.any(Array));
-//         expect(response.body).toMatchObject([sampleService]);
-//         expect(response.body.length).toBe(1);
-//         validateJsonHeaders(response.header);
-//         done();
-//     } catch (error) {
-//         done.fail(error);
-//     }
-// });
-
-//GETBYID
-describe('${args} get by ID, return one element', () => {
-    test('Should response only one object ${args}', async (done) => {
-        try {
-            let item = new ${argsModel}();
-            item.save();
-
-            const response = await request(app).get('/${args}/'+item._id);
-            expect(response.status).toBe(200);
-            // expect(response.body).toMatchObject({ });
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
+    
+    afterEach((done) => {
+        mongoDB.disconnect(done);
     });
-});
-
-//GETBYID
-describe('${args} get by ID, with an id of object does not exist', () => {
-    test('Should response with a error for http', async (done) => {
-        try {
-            let item = {
-                _id: "13safs3wrmk56kj564k"
-            };        
-            const response = await request(app).get('/${args}/'+item._id);
-            expect(response.status).toBe(404);
-            // expect(response.body).toMatchObject({
-            //
-            //     });
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
+    
+    
+    describe(`GET method for ${modelName}`, () => {
+        test(`Should GET an array with all ${modelName} items`, async (done) => {
+            try {
+                const response = await request(app).get(route);
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual(expect.any(Array));
+                expect(response.body.length).toBe(initialDataCount);
+                expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+                done();
+            } catch (error) {
+                done.fail(error);
+            }
+        });
+    
+        test(`Should GET a single ${modelName} item by ID`, async (done) => {
+            try {
+                let newItem = await (new currentModel(newData)).save();
+                const response = await request(app).get(route + '/' + newItem._id);
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual(expect.any(Object));
+                expect(response.body).toMatchObject(newData);
+                expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+                done();
+            } catch (error) {
+                done.fail(error);
+            }
+        });
+    
+        test(`Should NOT GET a ${modelName} item and reply with status 400 when Non-existing ID is sent`, async (done) => {
+            try {
+                const response = await request(app).get(route + '/' + NON_EXISTING_ID);
+                expect(response.status).toBe(400);
+                expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+                done()
+            } catch (error) {
+                done.fail(error)
+            }
+        });
     });
-});
-
-//POST
-describe('Method post, after should send the ${args} object and compare', () => {
-    test('Should response with the new ${args}', async (done) => {
-        try {
-            const new${args} = { };
-            const response = await request(app).post('/${args}').send(new${args});
-            expect(response.status).toBe(201);
-            // expect(response.body).toMatchObject({});
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
+    describe(`DELETE method for ${modelName}`, () => {
+        test(`Should DELETE the ${modelName} item and reply with status 204`, async (done) => {
+            try {
+                let newItem = await (new currentModel(newData)).save();
+                let numberOfItems = await currentModel.count();
+                const response = await request(app).delete(route + '/' + newItem._id);
+                let updatedNumberOfItems = await currentModel.count();
+                expect(response.status).toEqual(203);
+                expect(updatedNumberOfItems).toBe(numberOfItems - 1);
+                done();
+            } catch (error) {
+                done.fail(error)
+            }
+        });
+    
+        test(`Should NOT DELETE the ${modelName} item and reply with status 400 when Non-existing ID is sent`, async (done) => {
+            try {
+                const response = await request(app).delete(route + '/' + NON_EXISTING_ID);
+                expect(response.status).toEqual(400);
+                expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+                done();
+            } catch (error) {
+                done.fail(done);
+            }
+        });
     });
-});
-
-//PUT
-describe('Method put, after should send the a message', () => {
-    test('Should UPDATE a ${args}', async (done) => {
-        try {
-            let ${args} = { };
-            let item = new ${argsModel}(${args});
-            item.save();
-
-            let update${args} = { }
-            const response = await request(app).put('/${args}/'+item._id).send(update${args});
-            expect(response.status).toBe(200);
-            // expect(response.body).toMatchObject({});
-            done();
-        } catch (error) {
-            done.fail(error);
-        }    
+    
+    describe(`POST method for ${modelName}`, () => {
+        test(`Should INSERT a new ${modelName} item`, async (done) => {
+            try {
+                let countBeforePost = await currentModel.count();
+                expect(countBeforePost).toEqual(initialDataCount);
+                let response = await request(app).post(route + '/').send(newData);
+                expect(response.status).toBe(201);
+                expect(response.body).toMatchObject(newData);
+                let countAfterPost = await currentModel.count();
+                expect(countAfterPost).toEqual(initialDataCount + 1);
+                done();
+            } catch (error) {
+                done.fail(error);
+            }
+        });
+        
+        test(`Should NOT INSERT a new ${modelName} item and reply with status 400 when required fields are empty`, async (done) => {
+            try {
+                let response = await request(app).post(route).send(invalidData);
+                expect(response.status).toBe(400);
+                let countAfterPost = await currentModel.count();
+                expect(countAfterPost).toBe(initialDataCount);
+                done();
+            } catch (error) {
+                done.fail(error);
+            }
+        });
+    
     });
-});
-
-//PUT
-describe('Method put, after should send the new data, with wrong ID', () => {
-    test('Should response with an ERROR MESSAGE', async (done) => {
-        try {
-            let ${args} = { };
-            let item = new ${argsModel}(${args});
-            item.save();
-
-            let update${args} = { };
-            //ID not exist in DB
-            const id = "2i43iusay34nm1214";
-            const response = await request(app).put('/${args}/'+id).send(update${args});
-            expect(response.status).toBe(500);
-            // expect(response.body).toMatchObject({
-            //
-            //     });
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
-    });
-});
-
-// DELETE METHOD review the response of controller
-describe('Method delete, should send a string verication for delete', () => {
-    test('Should delete a ${args}', async (done) => {
-        try {
-            const ${args} = { };
-
-            let item = new ${argsModel}(${args});
-            item.save();
-
-            const response = await request(app).delete('/${args}/'+item._id);
-            expect(response.status).toBe(203);
-            // expect(response.body).toMatchObject({});
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
-    });
-});
-
-// DELETE METHOD review the response of controller
-describe('Method delete of unknow ID', () => {
-    test('Should response with an error', async (done) => {
-        try {
-            const ${args} = { };
-
-            let item = new ${argsModel}(${args});
-            item.save();
-
-            const id = '5ceeae0e96665d29c824d12easxz'
-            const response = await request(app).delete('/${args}/'+id);
-            expect(response.status).toBe(500);
-            // expect(response.body).toMatchObject({
-            //         
-            //     });
-            done();
-        } catch (error) {
-            done.fail(error);
-        }
-     });
-});`;
+    
+    describe(`PUT method for ${modelName}`, () => {
+        test(`Should UPDATE the ${modelName} item by ID with the provided data`, async (done) => {
+            try {
+                let itemToUpdate = initialData[1];
+                const response = await request(app).put(route + '/' + itemToUpdate._id).send(updatedData);
+                expect(response.status).toBe(200);
+                expect(response.body).toMatchObject(updatedData);
+    
+                done();
+            } catch (error) {
+                done.fail(error);
+            }
+        });
+        test(\`Should NOT UPDATE the ${modelName} item and reply with status 400 when unexisting ID is sent\`, async (done) => {
+            try {
+                let response = await request(app).put(route + '/' + NON_EXISTING_ID).send(updatedData);
+                expect(response.status).toBe(400);
+                done();
+            } catch (error) {
+                done.fail(error);
+            }
+        });
+    });`;
     return text;
 };
