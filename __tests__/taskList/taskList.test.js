@@ -42,7 +42,7 @@ afterEach((done) => {
 describe(`GET method for ${modelName}`, () => {
     test(`Should GET an array with all ${modelName} items`, async (done) => {
         try {
-            const response = await request(app).get('/tasklist');
+            const response = await request(app).get(route);
             expect(response.status).toBe(200);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(response.body).toEqual(expect.any(Array));
@@ -82,9 +82,9 @@ describe(`DELETE method for ${modelName}`, () => {
     test(`Should DELETE the ${modelName} item and reply with status 204`, async (done) => {
         try {
             let newItem = await (new currentModel(newData)).save();
-            let numberOfItems = await currentModel.count();
+            let numberOfItems = await currentModel.countDocuments();
             const response = await request(app).delete(route + '/' + newItem._id);
-            let updatedNumberOfItems = await currentModel.count();
+            let updatedNumberOfItems = await currentModel.countDocuments();
             expect(response.status).toEqual(203);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(updatedNumberOfItems).toBe(numberOfItems - 1);
@@ -101,7 +101,7 @@ describe(`DELETE method for ${modelName}`, () => {
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             done();
         } catch (error) {
-            done.fail(done);
+            done.fail(error);
         }
     });
 });
@@ -109,13 +109,13 @@ describe(`DELETE method for ${modelName}`, () => {
 describe(`POST method for ${modelName}`, () => {
     test(`Should INSERT a new ${modelName} item`, async (done) => {
         try {
-            let countBeforePost = await currentModel.count();
+            let countBeforePost = await currentModel.countDocuments();
             expect(countBeforePost).toEqual(initialDataCount);
             let response = await request(app).post(route + '/').send(newData);
             expect(response.status).toBe(201);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(response.body).toMatchObject(newData);
-            let countAfterPost = await currentModel.count();
+            let countAfterPost = await currentModel.countDocuments();
             expect(countAfterPost).toEqual(initialDataCount + 1);
             done();
         } catch (error) {
@@ -128,7 +128,7 @@ describe(`POST method for ${modelName}`, () => {
             let response = await request(app).post(route).send(invalidData);
             expect(response.status).toBe(400);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
-            let countAfterPost = await currentModel.count();
+            let countAfterPost = await currentModel.countDocuments();
             expect(countAfterPost).toBe(initialDataCount);
             done();
         } catch (error) {

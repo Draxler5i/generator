@@ -5,8 +5,7 @@ const initialData = require('./taskList.data.json');
 //Parameters
 
 beforeEach(async () => {
-    await mongoDB.connect();
-    
+    await mongoDB.connect();    
 });
 
 afterEach((done) => {
@@ -145,14 +144,14 @@ describe(`blablabla model`,() =>{
 
             done.fail(error);
         } catch (error) {
-            Object.keys(currentModel.schema.paths).map( path => {
-                console.log("PASSED TEST", path);
-                let currentPath = error.errors[path];
-                if(currentPath) {
-                    console.log(" IF TRUE");
-                    expect(error.errors[path]).toBeDefined();    
-                }
-            });
+            // Object.keys(currentModel.schema.paths).map( path => {
+            //     console.log("PASSED TEST", path);
+            //     let currentPath = error.errors[path];
+            //     if(currentPath) {
+            //         console.log(" IF TRUE");
+            //         expect(error.errors[path]).toBeDefined();    
+            //     }
+            // });
             
             // console.log("ERRORS ", error.errors);
             expect(error.name).toBe('ValidationError');
@@ -219,10 +218,12 @@ describe(`blablabla model`,() =>{
             });
             let taskSaved = await task1.save();
 
-            let response = await currentModel.findOneAndDelete({ _id: taskSaved._id }, done);
+            let response = await currentModel.findOneAndDelete({ _id: taskSaved._id });
+            console.log("Response ",response);
             // let response1 = await TaskList.findOne({ _id: taskSaved._id });
             // console.log()
-            expect(response).toBe(null);
+            expect(response).toBe(task1);
+            expect(true).toBe(true);
 
             done();
         } catch (error) {
