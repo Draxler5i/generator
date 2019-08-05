@@ -16,19 +16,23 @@ afterEach((done) => {
     mongoDB.disconnect(done);
 });
 
+function validateArray() {
+    let result = false;
+    initialData.forEach(element => {
+        result = TaskList.exists({name : element.name});
+        if(result === false)
+            return result;
+    });
+    return result;
+};
+
 describe('Test the TASKLIST', () => {
     test('It should response the GET method with 200 status and return an Array of Tasks', async (done) => {
         try {
-            let i = 0;
             const response = await request(app).get('/tasklist');
             expect(response.status).toBe(200);
             expect(response.body).toEqual(expect.any(Array));
-            response.body.forEach(element => {
-                let sampleData = initialData[i];
-                delete sampleData._id;
-                expect(element).toMatchObject(sampleData)
-                i++;
-            });
+            expect(await validateArray()).toBe(true);
             expect(response.body.length).toBe(initialData.length);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             done();
@@ -66,6 +70,7 @@ describe('Test the TASKLIST', () => {
             const response = await request(app).delete('/tasklist/' + newTask._id);
             let updatedNumberOfTasks = await TaskList.count();
             expect(response.status).toEqual(203);
+            expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(updatedNumberOfTasks).toBe(numberOfTasks - 1);
             done();
         } catch (error) {
