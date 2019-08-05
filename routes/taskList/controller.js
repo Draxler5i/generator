@@ -8,7 +8,7 @@ module.exports.get = async (req, res) => {
                     if (taskLists) {
                         res.status(200).send(taskLists);
                     } else {
-                        return res.status(404).json({ message: 'No such' + TaskList });
+                        return res.status(400).json({ message: 'No such' + TaskList });
                     }
                 });
         } else {
@@ -17,7 +17,7 @@ module.exports.get = async (req, res) => {
                     if (!err) {
                         res.status(200).send(taskList);
                     } else {
-                        return res.status(404).json({ message: 'No such' + TaskList });
+                        return res.status(400).json({ message: 'No such' + TaskList });
                     }
                 });
         }
@@ -54,7 +54,7 @@ module.exports.delete = async (req, res) => {
     try {
         let item = await TaskList.findOneAndRemove({ _id: req.params.id });
         if (!item) {
-            return res.status(404).send({ error: 'Not Found Error taskList not found' });
+            return res.status(400).send({ error: 'Not Found Error taskList not found' });
         } else {
             return res.status(203).json({ message: 'taskList Successfully deleted' });
         }
