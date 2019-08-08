@@ -3,180 +3,295 @@ const currentModel = require('../../models/taskList/taskListModel');
 const initialData = require('./taskList.data.json');
 
 //Parameters
+const NON_EXISTING_ID = '111111111111000000000000';
+const modelName = 'Task';
+const REQUIRED_FIELDS = ["name", "description", "status"];
+const UNIQUE_FIELDS = ["name"];
+const DEFAULT_FIELDS = [{ name: "priority", value: ["low"] }];
+const ENUM_FIELDS = [{ name: "status", value: ["To Do", "In progress", "Done"] }];
+
+const newData = {
+    name: "task #121",
+    description: "Make a function",
+    status: "To Do"
+}
+const invalidTypes = {
+    name: 124214,
+    description: false,
+    dueDate: 'asfas 2wasaf asasf',
+    status: false,
+    notes: ""
+}
+const voidData = {
+    name: "",
+    description: "",
+    status: ""
+}
+const updateData = {
+    name: "task #9",
+    description: "Take a rest"
+}
+
+const FIND_FIELDS = (param, hasFind) => {
+    return Object.values(currentModel.schema.paths).filter( field => {
+        if(field.options.hasOwnProperty(param) && hasFind) { return field }
+        else { if(!field.options.hasOwnProperty(param) && !hasFind) {return field} };
+    });
+}
+
+const REQUIRED_FIELDS_MODEL = FIND_FIELDS('required', true);
+const UNIQUE_FIELDS_MODEL = FIND_FIELDS('unique', true);
+const DEFAULT_FIELDS_MODEL = FIND_FIELDS('default', true);
+const ENUM_FIELDS_MODEL = FIND_FIELDS('enum', true);
 
 beforeEach(async () => {
-    await mongoDB.connect();    
+    await mongoDB.connect();
 });
 
 afterEach((done) => {
     mongoDB.disconnect(done);
 });
 
-describe(`blablabla model`,() =>{
-    test(`Should insert many valid items`, async (done) => {
-        try {
-            await currentModel.collection.insertMany(initialData);
-            done();
-        } catch (error) {
-            done.fail(error);           
+expect.extend({
+    toHaveSpecificKeys(received, expected) {
+        let hasExpectedLength = Object.keys(received).length === Object.keys(expected).length;
+        let hasExpectedKeys = Object.keys(received).map(key => {
+            let includesKey = Object.keys(expected).includes(key);
+            if (!includesKey) { return false; } else {
+                return true;
+            }
+        })
+        const pass = hasExpectedLength && hasExpectedKeys;
+        if (pass) {
+            return {
+                message: () =>
+                    `expected ${received} to match ${expected.length} key(s) ${expected}`,
+                pass: true,
+            };
+        } else {
+            return {
+                message: () =>
+                    `expected ${JSON.stringify(received)} to match ${expected.length} key(s) ${expected} but received ${Object.keys(received)}`,
+                pass: false,
+            };
+        }
+    },
+});
+
+//Returns value parameter if non exists return null;
+const objectExists = (obj, searchValue, { searchKeys = typeof searchValue === "string", maxDepth = 10 } = {}) => {
+    let valueParam = null;
+    const notObject = typeof searchValue !== "object";
+    const gvpio = (obj, maxDepth) => {
+        if (!maxDepth) return;
+        for (const [curr, currElem] of Object.entries(obj)) {
+            if (searchKeys && curr === searchValue) {
+                valueParam = currElem;
+                break;
+            }
+            if (typeof currElem === "object") {
+                gvpio(currElem, maxDepth - 1);
+                if (notObject) continue;
+            }
+            if (currElem === searchValue) {
+                valueParam = currElem;
+                break;
+            }
+        }
+    }
+    gvpio(obj, maxDepth);
+    return valueParam;
+}
+
+describe(`Validate REQUIRED items for ${modelName}`, ()=>{
+    test(`Should compare all REQUIRED fields from ${modelName}`, ()=> {
+        if(REQUIRED_FIELDS_MODEL.length > 0) {
+            REQUIRED_FIELDS_MODEL.map( modelField => {
+                const field = REQUIRED_FIELDS.find( f => f === modelField.path );
+                expect(field).toBe(modelField.path);
+            });
         }
     });
-    test('Get required all fields tasklist, exception notes must return an error ', async (done) => {
-        try {
-            let task1 = new currentModel({
-                notes: "I am a note"
+
+    test(`Should compare all NO REQUIRED fields from ${modelName}`, ()=> {
+        const non_required_fields_model = FIND_FIELDS('required', false);
+        if(non_required_fields_model.length > 0) {
+            non_required_fields_model.map( modelField => {
+                const field = REQUIRED_FIELDS.find( f => f === modelField.path );
+                expect(field).toBeUndefined();
             });
-            await task1.save();
+        }
+    });
+});
+
+describe(`Validate UNIQUE items for ${modelName}`, ()=>{
+    test(`Should compare all UNIQUE fields from ${modelName}`, ()=> {
+        if(UNIQUE_FIELDS_MODEL.length > 0) {
+            UNIQUE_FIELDS_MODEL.map( modelField => {
+                const field = UNIQUE_FIELDS.find( f => f === modelField.path );
+                expect(field).toBe(modelField.path);
+            });
+        }
+    });
+
+    test(`Should compare all NO UNIQUE fields from ${modelName}`, ()=> {
+        const non_unique_fields_model = FIND_FIELDS('unique', false);
+        if(non_unique_fields_model.length > 0) {
+            non_unique_fields_model.map( modelField => {
+                const field = UNIQUE_FIELDS.find( f => f === modelField.path );
+                expect(field).toBeUndefined();
+            });
+        }
+    });
+});
+
+describe(`Validate DEFAULT items for ${modelName}`, ()=>{
+    test(`Should compare all DEFAULT fields from ${modelName}`, ()=> {
+        if(DEFAULT_FIELDS_MODEL.length > 0) {
+            DEFAULT_FIELDS_MODEL.map( modelField => {
+                const field = DEFAULT_FIELDS.find( f => f.name === modelField.path );
+                expect(field.name).toBe(modelField.path);
+            });
+        }
+    });
+
+    test(`Should compare all NO DEFAULT fields from ${modelName}`, ()=> {
+        const non_default_fields_model = FIND_FIELDS('default', false);
+        if(non_default_fields_model.length > 0) {
+            non_default_fields_model.map( modelField => {
+                const field = UNIQUE_FIELDS.find( f => f.name === modelField.path );                
+                expect(field).toBeUndefined();
+            });
+        }
+    });
+});
+
+describe(`Validate ENUM items for ${modelName}`, ()=>{
+    test(`Should compare all DEFAULT fields from ${modelName}`, ()=> {
+        if(ENUM_FIELDS_MODEL.length > 0) {
+            ENUM_FIELDS_MODEL.map( modelField => {
+                const field = ENUM_FIELDS.find( f => f.name === modelField.path );
+                expect(field.name).toBe(modelField.path);
+                ////////////////VERIFY - MAKE A VALIDATION OF ALL VALUES???
+            });
+        }
+    });
+
+    test(`Should compare all NO ENUM fields from ${modelName}`, ()=> {
+        const non_enum_fields_model = FIND_FIELDS('enum', false);
+        if(non_enum_fields_model.length > 0) {
+            non_enum_fields_model.map( modelField => {
+                const field = UNIQUE_FIELDS.find( f => f.name === modelField.path );
+                expect(field).toBeUndefined();
+            });
+        }
+    });
+});
+
+
+////OLD TESTS
+describe(`INSERT items for ${modelName}`, () => {
+    test(`Should INSERT a new ${modelName} item with one field by default`, async (done) => {
+        try {
+            const item = new currentModel(newData);
+            const newItem = await item.save();
+            expect(newItem).toHaveSpecificKeys(item);
+
+            done();
+        } catch (error) {
+            done.fail(error);
+        };
+    });
+
+    test(`Should insert many valid ${modelName} items`, async (done) => {
+        try {
+            const data = await currentModel.collection.insertMany(initialData);
+            expect(data.insertedCount).toBe(initialData.length);
+            expect(data.result.ok).toBe(1);
+            expect(data.ops).toEqual(expect.any(Array));
+
+            done();
+        } catch (error) {
+            done.fail(error);
+        }
+    });
+
+    test(`Should NOT INSERT a new ${modelName} item and reply with an error`, async (done) => {
+        try {
+            const item = new currentModel({});
+            await item.save();
 
             done.fail("Should have more fiels");
         } catch (error) {
-            expect(error).toEqual(expect.any(Object));
-            expect(error.message).toEqual('TaskList validation failed: status: Path `status` is required., description: Path `description` is required., name: Path `name` is required.');
+            
             done();
         };
     });
 
-    test('Get required dueDate tasklist, must return an error ', async (done) => {
+    test(`Should NOT INSERT a new ${modelName} with void fields and reply with an error`, async (done) => {
         try {
-            let task1 = new currentModel({
-                name: "task #1234232",
-                description: "Make a lunch",
-                dueDate: "",
-                status: "Done"
-            });
-            await task1.save();
-
-            done.fail("Should have a valid dueDate");
-        } catch (error) {
-            expect(error).toEqual(expect.any(Object));
-            expect(error.message).toEqual('TaskList validation failed: dueDate: Path `dueDate` is required.');
-            done();
-        };
-    });
-
-    test('Get required all fields tasklist, exception notes, must return an error ', async (done) => {
-        try {
-            let task1 = new currentModel({
-                notes: "I am a note",
-                status: "Done"
-            });
-            await task1.save();
+            const item = new currentModel(voidData);
+            await item.save();
 
             done.fail("Should have more fiels");
         } catch (error) {
-            expect(error).toEqual(expect.any(Object));
-            expect(error.message).toEqual('TaskList validation failed: description: Path `description` is required., name: Path `name` is required.');
+            
             done();
         };
     });
 
-    test('Validate data types in model, must return an error ', async (done) => {
-        const dueDate = 'asfas 2wasaf asasf';
+    test(`Should NOT INSERT a new ${modelName} item without valid data and reply with an error`, async (done) => {
         try {
-            let task1 = new currentModel({
-                name: 124214,
-                description: false,
-                dueDate,
-                status: false,
-                notes: () => ({ message: 'Not work' })
-            });
-            await task1.save();
+            const item = new currentModel(invalidTypes);
+            await item.save();
 
             done.fail("There are not type of fields");
         } catch (error) {
-            expect(error).toEqual(expect.any(Object));
-            expect(error.message).toEqual('TaskList validation failed: dueDate: Cast to Date failed for value "' + dueDate + '" at path "dueDate", status: `false` is not a valid enum value for path `status`.');
+            
             done();
         };
     });
+});
 
-    test('Validate the unique field, must return and error unique field', async (done) => {
-        try { 
-            let github1 = new currentModel({
-                name: "task51",
-                description: "Make lunch",
-                dueDate: "Thu Aug 08 2019 18:25:00 GMT-0400",
-                status: "Done"
-            });
-            await github1.save();
+describe(`UPDATE items for ${modelName}`, () => {
+    test(`Should UPDATE a new ${modelName} item without one data`, async (done) => {
+        try {
+            const item = new currentModel(newData);
+            const itemSaved = await item.save();
+            const response = await currentModel.findOneAndUpdate({ _id: itemSaved._id }, updateData, { new: true, runValidators: true, context: 'query' });            
 
-            let github2 = new currentModel({
-                name: "task51",
-                description: "Make dinner",
-                dueDate: "Thu Aug 08 2019 18:25:00 GMT-0400",
-                status: "Done"
-            });
-            await github2.save();
+            expect(response).toHaveSpecificKeys(itemSaved.toJSON());
+
+            done();
+        } catch (error) {
+            done.fail(error);
+        };
+    });
+
+    test(`Should NOT UPDATE a new ${modelName} item with an unique value repeated`, async (done) => {
+        try {
+            const item1 = new currentModel(newData);
+            await item1.save();
+
+            const item2 = new currentModel(newData);
+            await item2.save();
 
             done.fail("Should not save duplicate name");
         } catch (error) {
-            expect(error).toEqual(expect.any(Object));
-            expect(error.message).toEqual('TaskList validation failed: name: Error, expected `name` to be unique. Value: `task51`');
-            done();
-        };
-    });
-
-    test('Validate default date. If dueDate it is void, should be now date by default', async (done) => {
-        try {
-            let task1 = new currentModel({
-                name: "New task list",
-                description: "Make the new service",
-                status: "To Do"
-            });
-            let newTask = await task1.save();
-            expect(newTask.dueDate.toDateString()).toBe(new Date().toDateString());
-            expect(newTask.dueDate.getHours()).toBe(new Date().getHours());
-            //expect(newTask.dueDate.getMinutes()).toBe(new Date().getMinutes());
-            done();
-        } catch (error) {
-            done.fail(error);
-        };
-    });
-
-    test('Validate enum data in status, should response with error, enum validation', async (done) => {
-        try {
-            let task1 = new currentModel({
-                name: "Other task list",
-                description: "Make a new service",
-                status: "Status"
-            });
-            await task1.save();
-
-            done.fail(error);
-        } catch (error) {
-            // Object.keys(currentModel.schema.paths).map( path => {
-            //     console.log("PASSED TEST", path);
-            //     let currentPath = error.errors[path];
-            //     if(currentPath) {
-            //         console.log(" IF TRUE");
-            //         expect(error.errors[path]).toBeDefined();    
-            //     }
-            // });
             
-            // console.log("ERRORS ", error.errors);
-            expect(error.name).toBe('ValidationError');
             done();
         };
     });
+});
 
-    test('Update model, update required fields with void field', async (done) => {
+describe(`DELETE items for ${modelName}`, () => {
+    test(`Should DELETE the ${modelName} item and reply with the same MODEL item`, async (done) => {
         try {
-            let task1 = new currentModel({
-                name: "task #1234232",
-                description: "Make a lunch",
-                status: "To Do"
-            });
-            let taskSaved = await task1.save();
+            const item = new currentModel(newData);
+            const itemSaved = await item.save();
+            const response = await currentModel.findOneAndDelete({ _id: itemSaved._id });
 
-            let taskUpdate = {
-                name: "task #9",
-                description: "Take a rest"
-            };
-            let response = await currentModel.findOneAndUpdate({ _id: taskSaved._id }, taskUpdate, done);
-
-            expect(response).toMatchObject(taskUpdate);
-            expect(response.name).toBe(taskUpdate.name);
-            expect(response.description).toBe(taskUpdate.description);
+            expect(response).toHaveSpecificKeys(response, itemSaved);
 
             done();
         } catch (error) {
@@ -184,46 +299,12 @@ describe(`blablabla model`,() =>{
         };
     });
 
-    test('Update model, update a taskList name with a field that already exist', async (done) => {
+    test(`Should NOT DELETE the ${modelName} item and reply with a null response`, async (done) => {
         try {
-            let task1 = new currentModel({
-                name: "task #12",
-                description: "Make a service",
-                status: "To Do"
-            });
-            let task1Saved = await task1.save();
-
-            let task2= new currentModel({
-                name: "task #13",
-                description: "Make a function",
-                status: "In progress"
-            });
-            let task2Saved = await task2.save();
-
-            let response = await currentModel.findOneAndUpdate({_id: task2Saved._id}, { name: task1.name }, { new: true, runValidators: true, context: 'query' } );
-
-            done.fail("ERROR item save duplicate key");
-        } catch (error) {
-            expect(error).toEqual(expect.any(Object));
-            done();
-        };
-    });
-
-    test('Delete a taskList, should not exits at list', async (done) => {
-        try {
-            let task1 = new currentModel({
-                name: "task #1234232",
-                description: "Make a lunch",
-                status: "To Do"
-            });
-            let taskSaved = await task1.save();
-
-            let response = await currentModel.findOneAndDelete({ _id: taskSaved._id });
-            console.log("Response ",response);
-            // let response1 = await TaskList.findOne({ _id: taskSaved._id });
-            // console.log()
-            expect(response).toBe(task1);
-            expect(true).toBe(true);
+            const item = new currentModel(newData);
+            await item.save();
+            const response = await currentModel.findOneAndDelete({ _id: NON_EXISTING_ID });
+            expect(response).toBe(null);
 
             done();
         } catch (error) {
