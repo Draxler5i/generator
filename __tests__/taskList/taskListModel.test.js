@@ -34,8 +34,14 @@ const updateData = {
 
 const FIND_FIELDS = (param, hasFind) => {
     return Object.values(currentModel.schema.paths).filter( field => {
-        if(field.options.hasOwnProperty(param) && hasFind) { return field }
-        else { if(!field.options.hasOwnProperty(param) && !hasFind) {return field} };
+        if (field.options.hasOwnProperty(param) && hasFind) { 
+            return field; 
+        }
+        else { 
+            if (!field.options.hasOwnProperty(param) && !hasFind) {
+                return field;
+            } 
+        };
     });
 }
 
@@ -103,8 +109,8 @@ const objectExists = (obj, searchValue, { searchKeys = typeof searchValue === "s
     return valueParam;
 }
 
-describe(`Validate REQUIRED items for ${modelName}`, ()=>{
-    test(`Should compare all REQUIRED fields from ${modelName}`, ()=> {
+describe(`Validate REQUIRED fields for ${modelName}`, () => {
+    test(`Should compare all REQUIRED fields from ${modelName}`, () => {
         if(REQUIRED_FIELDS_MODEL.length > 0) {
             REQUIRED_FIELDS_MODEL.map( modelField => {
                 const field = REQUIRED_FIELDS.find( f => f === modelField.path );
@@ -113,7 +119,7 @@ describe(`Validate REQUIRED items for ${modelName}`, ()=>{
         }
     });
 
-    test(`Should compare all NO REQUIRED fields from ${modelName}`, ()=> {
+    test(`Should compare all NO REQUIRED fields from ${modelName}`, () => {
         const non_required_fields_model = FIND_FIELDS('required', false);
         if(non_required_fields_model.length > 0) {
             non_required_fields_model.map( modelField => {
@@ -124,8 +130,8 @@ describe(`Validate REQUIRED items for ${modelName}`, ()=>{
     });
 });
 
-describe(`Validate UNIQUE items for ${modelName}`, ()=>{
-    test(`Should compare all UNIQUE fields from ${modelName}`, ()=> {
+describe(`Validate UNIQUE fields for ${modelName}`, () => {
+    test(`Should compare all UNIQUE fields from ${modelName}`, () => {
         if(UNIQUE_FIELDS_MODEL.length > 0) {
             UNIQUE_FIELDS_MODEL.map( modelField => {
                 const field = UNIQUE_FIELDS.find( f => f === modelField.path );
@@ -134,7 +140,7 @@ describe(`Validate UNIQUE items for ${modelName}`, ()=>{
         }
     });
 
-    test(`Should compare all NO UNIQUE fields from ${modelName}`, ()=> {
+    test(`Should compare all NO UNIQUE fields from ${modelName}`, () => {
         const non_unique_fields_model = FIND_FIELDS('unique', false);
         if(non_unique_fields_model.length > 0) {
             non_unique_fields_model.map( modelField => {
@@ -145,8 +151,8 @@ describe(`Validate UNIQUE items for ${modelName}`, ()=>{
     });
 });
 
-describe(`Validate DEFAULT items for ${modelName}`, ()=>{
-    test(`Should compare all DEFAULT fields from ${modelName}`, ()=> {
+describe(`Validate DEFAULT fields for ${modelName}`, () => {
+    test(`Should compare all DEFAULT fields from ${modelName}`, () => {
         if(DEFAULT_FIELDS_MODEL.length > 0) {
             DEFAULT_FIELDS_MODEL.map( modelField => {
                 const field = DEFAULT_FIELDS.find( f => f.name === modelField.path );
@@ -155,7 +161,7 @@ describe(`Validate DEFAULT items for ${modelName}`, ()=>{
         }
     });
 
-    test(`Should compare all NO DEFAULT fields from ${modelName}`, ()=> {
+    test(`Should compare all NO DEFAULT fields from ${modelName}`, () => {
         const non_default_fields_model = FIND_FIELDS('default', false);
         if(non_default_fields_model.length > 0) {
             non_default_fields_model.map( modelField => {
@@ -166,18 +172,19 @@ describe(`Validate DEFAULT items for ${modelName}`, ()=>{
     });
 });
 
-describe(`Validate ENUM items for ${modelName}`, ()=>{
-    test(`Should compare all DEFAULT fields from ${modelName}`, ()=> {
+describe(`Validate ENUM fields for ${modelName}`, () =>{
+    test(`Should compare all DEFAULT fields from ${modelName}`, () => {
         if(ENUM_FIELDS_MODEL.length > 0) {
             ENUM_FIELDS_MODEL.map( modelField => {
                 const field = ENUM_FIELDS.find( f => f.name === modelField.path );
                 expect(field.name).toBe(modelField.path);
+                expect(field.value).toEqual(expect.arrayContaining(modelField.enumValues));
                 ////////////////VERIFY - MAKE A VALIDATION OF ALL VALUES???
             });
         }
     });
 
-    test(`Should compare all NO ENUM fields from ${modelName}`, ()=> {
+    test(`Should compare all NO ENUM fields from ${modelName}`, () => {
         const non_enum_fields_model = FIND_FIELDS('enum', false);
         if(non_enum_fields_model.length > 0) {
             non_enum_fields_model.map( modelField => {
@@ -221,7 +228,7 @@ describe(`INSERT items for ${modelName}`, () => {
             const item = new currentModel({});
             await item.save();
 
-            done.fail("Should have more fiels");
+            done.fail("Should have more fields");
         } catch (error) {
             
             done();
@@ -233,7 +240,7 @@ describe(`INSERT items for ${modelName}`, () => {
             const item = new currentModel(voidData);
             await item.save();
 
-            done.fail("Should have more fiels");
+            done.fail("Should have more fields");
         } catch (error) {
             
             done();
