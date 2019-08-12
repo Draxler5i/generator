@@ -361,7 +361,7 @@ function testModel(parameters) {
             };
         });
     
-        test(`Should inset a new ${modelName} that has extra data but just save ${modelName} fields`, async (done) => {
+        test(`Should insert a new ${modelName} that has extra data but just save ${modelName} fields`, async (done) => {
             try {
                 const item = new currentModel(extraData);
                 const response = await item.save();

@@ -12,5 +12,5 @@ const TaskListSchema = new Schema({
 });
 
 TaskListSchema.plugin(uniqueValidator);
-const model = mongoose.model('TaskList', TaskListSchema);
-module.exports = model;
+const taskListModel = mongoose.model('TaskList', TaskListSchema);
+module.exports = taskListModel;

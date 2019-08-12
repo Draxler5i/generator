@@ -3,10 +3,13 @@ const request = require('supertest');
 const mongoDB = require('../../database/database');
 const currentModel = require('../../models/taskList/taskListModel');
 const initialData = require('./taskList.data.json');
+const ServiceLogModel = require('../../models/serviceLogModel/serviceLogModel');
 
 //Parameters
 const modelName = 'Task';
 const route = '/tasklist';
+const validateServiceLog = false;
+let numberOfLogs;
 const initialDataCount = initialData.length;
 const NON_EXISTING_ID = '111111111111000000000000';
 let invalidData = {
@@ -28,11 +31,19 @@ let updatedData = {
     "notes": "Notes updated"
 }
 
+async function serviceLogValidation(numberOfHttpCalls) {
+    if (validateServiceLog) {
+        let updatedNumberOfLogs = await ServiceLogModel.count();
+        expect(updatedNumberOfLogs).toEqual(numberOfLogs + numberOfHttpCalls);
+    }
+}
+
 //****************************/
 
 beforeEach(async () => {
     await mongoDB.connect();
     await currentModel.collection.insertMany(initialData);
+    numberOfLogs = await ServiceLogModel.count();
 });
 
 afterEach((done) => {
@@ -47,6 +58,7 @@ describe(`GET method for ${modelName}`, () => {
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(response.body).toEqual(expect.any(Array));
             expect(response.body.length).toBe(initialData.length);
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
@@ -61,6 +73,7 @@ describe(`GET method for ${modelName}`, () => {
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(response.body).toEqual(expect.any(Object));
             expect(response.body).toMatchObject(newData);
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
@@ -72,6 +85,7 @@ describe(`GET method for ${modelName}`, () => {
             const response = await request(app).get(route + '/' + NON_EXISTING_ID);
             expect(response.status).toBe(400);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+            await serviceLogValidation(0);
             done()
         } catch (error) {
             done.fail(error)
@@ -88,6 +102,7 @@ describe(`DELETE method for ${modelName}`, () => {
             expect(response.status).toEqual(203);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(updatedNumberOfItems).toBe(numberOfItems - 1);
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error)
@@ -99,6 +114,7 @@ describe(`DELETE method for ${modelName}`, () => {
             const response = await request(app).delete(route + '/' + NON_EXISTING_ID);
             expect(response.status).toEqual(400);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
@@ -117,6 +133,7 @@ describe(`POST method for ${modelName}`, () => {
             expect(response.body).toMatchObject(newData);
             let countAfterPost = await currentModel.countDocuments();
             expect(countAfterPost).toEqual(initialDataCount + 1);
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
@@ -130,6 +147,7 @@ describe(`POST method for ${modelName}`, () => {
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             let countAfterPost = await currentModel.countDocuments();
             expect(countAfterPost).toBe(initialDataCount);
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
@@ -146,6 +164,7 @@ describe(`PUT method for ${modelName}`, () => {
             expect(response.status).toBe(200);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
             expect(response.body).toMatchObject(updatedData);
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
@@ -156,6 +175,7 @@ describe(`PUT method for ${modelName}`, () => {
             let response = await request(app).put(route + '/' + NON_EXISTING_ID).send(updatedData);
             expect(response.status).toBe(400);
             expect(response.header["content-type"]).toEqual("application/json; charset=utf-8");
+            await serviceLogValidation(0);
             done();
         } catch (error) {
             done.fail(error);
