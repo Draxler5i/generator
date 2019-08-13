@@ -4,13 +4,16 @@ module.exports.get = async (req, res) => {
     try {
         if (req.params.id) {
             let item = await TaskList.findById(req.params.id)
-            res.status(200).json(item);
+            if(!item) {
+                return res.status(400).json({message: 'No such Task'});
+            }
+            return res.status(200).json(item);
         } else {
             let items = await TaskList.find({})
-            res.status(200).json(items);
+            return res.status(200).json(items);
         }
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 };
 
@@ -20,7 +23,7 @@ module.exports.post = async (req, res) => {
         let newItem = await item.save();
         return res.status(201).json(newItem);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
     }
 };
 

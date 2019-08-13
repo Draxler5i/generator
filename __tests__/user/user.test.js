@@ -1,5 +1,5 @@
 const currentModel = require('../../models/user/userModel');
-const standardTestModel = require('../StandardTM');
+const standardTestModel = require('../StandardModel');
 
 const NON_EXISTING_ID = '111111111111000000000000';
 const modelName = 'User';
