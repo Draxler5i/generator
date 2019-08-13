@@ -1,73 +1,4 @@
-const mongoDB = require('../../database/database');
-const TaskListModel = require('../../models/taskList/taskListModel');
-
-//Parameters
-const NON_EXISTING_ID = '111111111111000000000000';
-const modelName = 'Task';
-const REQUIRED_FIELDS = ["name", "description", "status"];
-const UNIQUE_FIELDS = ["name"];
-const DEFAULT_FIELDS = [{ name: "priority", value: "Low" }, { name: "dueDate", value: new Date() }];
-const ENUM_FIELDS = [{ name: "status", value: ["To Do", "In progress", "Done"] }];
-
-const allFields = {
-    name: "task #1",
-    description: "Make a function",
-    status: "To Do",
-    priority: "High",
-    dueDate: new Date("2019,10,10"),
-    notes: " There are not notes"
-}
-
-const withoutDefaultData = {
-    name: "task #1",
-    description: "Make a function",
-    status: "To Do",
-    notes: " There are not notes"
-}
-
-const voidData = {
-    name: "",
-    description: "",
-    status: "",
-    priority: "",
-    dueDate: "",
-    notes: ""
-}
-
-const updateData = {
-    name: "task #2",
-    description: "Make a Class",
-    status: "In progress",
-    priority: "low",
-    dueDate: new Date("2020,01,01"),
-    notes: " With 5 parameters"
-}
-
-const minimumFields = {
-    name: "task data",
-    status: "Done",
-    description: "Minimum data"
-}
-
-const extraData = {
-    name: "task #2",
-    description: "Make a Class",
-    status: "In progress",
-    priority: "low",
-    dueDate: new Date("2020,01,01"),
-    notes: " With 5 parameters",
-    owner: "user1",
-    deadLine: new Date("2019,10,10")
-}
-
-const structureModel = {
-    name: expect.any(String),
-    description: expect.any(String),
-    dueDate: expect.any(Date),
-    priority: expect.any(String),
-    status: expect.any(String),
-    notes: expect.any(String)
-}
+const mongoDB = require('../database/database');
 
 function testModel(parameters) {
     let {
@@ -426,19 +357,4 @@ function testModel(parameters) {
     });
 }
 
-testModel({
-    currentModel: TaskListModel,
-    NON_EXISTING_ID,
-    modelName,
-    REQUIRED_FIELDS,
-    UNIQUE_FIELDS,
-    DEFAULT_FIELDS,
-    ENUM_FIELDS,
-    allFields,
-    withoutDefaultData,
-    voidData,
-    updateData,
-    minimumFields,
-    extraData,
-    structureModel
-})
+module.exports = testModel;
