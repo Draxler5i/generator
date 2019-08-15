@@ -45,113 +45,145 @@ function testModel(parameters) {
 
     describe(`Validate REQUIRED fields for ${modelName}`, () => {
         test(`Should match all REQUIRED fields for ${modelName}`, (done) => {
-            if (REQUIRED_FIELDS.length > 0 || REQUIRED_FIELDS_MODEL.length > 0) {
-                REQUIRED_FIELDS.map(field => {
-                    const modelField = REQUIRED_FIELDS_MODEL.find(f => f.path === field);
-                    expect(modelField).toBeDefined();
-                    expect(field).toBe(modelField.path);
-                });
-                expect(REQUIRED_FIELDS.length).toBe(REQUIRED_FIELDS_MODEL.length);
-            } else {
-                console.log(`${modelName} Model doesn't have REQUIRED fields defined`);
+            try {
+                if (REQUIRED_FIELDS.length > 0 || REQUIRED_FIELDS_MODEL.length > 0) {
+                    REQUIRED_FIELDS.map(field => {
+                        const modelField = REQUIRED_FIELDS_MODEL.find(f => f.path === field);
+                        expect(modelField).toBeDefined();
+                        expect(field).toBe(modelField.path);
+                    });
+                    expect(REQUIRED_FIELDS.length).toBe(REQUIRED_FIELDS_MODEL.length);
+                } else {
+                    console.log(`${modelName} Model doesn't have REQUIRED fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
 
         test(`Should match all NON REQUIRED fields for ${modelName}`, (done) => {
-            const non_required_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('required', false);
-            if (REQUIRED_FIELDS.length > 0 || non_required_fields_model.length > 0) {
-                non_required_fields_model.map(modelField => {
-                    const field = REQUIRED_FIELDS.find(f => f === modelField.path);
-                    expect(field).toBeUndefined();
-                });
-            } else {
-                console.log(`${modelName} Model have ALL REQUIRED fields defined`);
+            try {
+                const non_required_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('required', false);
+                if (REQUIRED_FIELDS.length > 0 || non_required_fields_model.length > 0) {
+                    non_required_fields_model.map(modelField => {
+                        const field = REQUIRED_FIELDS.find(f => f === modelField.path);
+                        expect(field).toBeUndefined();
+                    });
+                } else {
+                    console.log(`${modelName} Model have ALL REQUIRED fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error)
             }
-            done();
         });
     });
 
     describe(`Validate UNIQUE fields for ${modelName}`, () => {
         test(`Should match all UNIQUE fields for ${modelName}`, (done) => {
-            if (UNIQUE_FIELDS.length > 0 || REQUIRED_FIELDS_MODEL.length > 0) {
-                UNIQUE_FIELDS.map( modelField => {
-                    const field = UNIQUE_FIELDS.find(f => f === modelField.path);
-                    expect(field).toBe(modelField.path);
-                });
-            } else {
-                console.log(`Model ${modelName} doesn't have UNIQUE fields defined`);
+            try {
+                if (UNIQUE_FIELDS.length > 0 || UNIQUE_FIELDS_MODEL.length > 0) {
+                    UNIQUE_FIELDS.map(modelField => {
+                        const field = UNIQUE_FIELDS.find(f => f === modelField.path);
+                        expect(field).toBe(modelField.path);
+                    });
+                } else {
+                    console.log(`Model ${modelName} doesn't have UNIQUE fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
 
         test(`Should match all NON UNIQUE fields for ${modelName}`, (done) => {
-            const non_unique_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('unique', false);
-            if (UNIQUE_FIELDS.length > 0 || non_unique_fields_model.length > 0) {
-                non_unique_fields_model.map(modelField => {
-                    const field = UNIQUE_FIELDS.find( f => f === modelField.path);
-                    expect(field).toBeUndefined();
-                });
-            } else {
-                console.log(`${modelName} Model ALL UNIQUE fields unique`);
+            try {
+                const non_unique_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('unique', false);
+                if (UNIQUE_FIELDS.length > 0 || non_unique_fields_model.length > 0) {
+                    non_unique_fields_model.map(modelField => {
+                        const field = UNIQUE_FIELDS.find(f => f === modelField.path);
+                        expect(field).toBeUndefined();
+                    });
+                } else {
+                    console.log(`${modelName} Model ALL UNIQUE fields unique`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
     });
 
     describe(`Validate DEFAULT fields for ${modelName}`, () => {
         test(`Should match all DEFAULT fields for ${modelName}`, (done) => {
-            if (DEFAULT_FIELDS.length > 0 || DEFAULT_FIELDS_MODEL.length > 0) {
-                DEFAULT_FIELDS.map( field => {
-                    const modelField = DEFAULT_FIELDS_MODEL.find( f => f.path === field.name);
-                    expect(modelField).toBeDefined();
-                    expect(field.name).toBe(modelField.path);
-                });
-            } else {
-                console.log(`Model ${modelName} doesn't have DEFAULT fields defined`);
+            try {
+                if (DEFAULT_FIELDS.length > 0 || DEFAULT_FIELDS_MODEL.length > 0) {
+                    DEFAULT_FIELDS.map(field => {
+                        const modelField = DEFAULT_FIELDS_MODEL.find(f => f.path === field.name);
+                        expect(modelField).toBeDefined();
+                        expect(field.name).toBe(modelField.path);
+                    });
+                } else {
+                    console.log(`Model ${modelName} doesn't have DEFAULT fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
 
         test(`Should match all NON DEFAULT fields for ${modelName}`, (done) => {
-            const non_default_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('default', false);
-            if (DEFAULT_FIELDS.length > 0 || non_default_fields_model.length > 0) {
-                non_default_fields_model.map(modelField => {
-                    const field = UNIQUE_FIELDS.find( f => f.name === modelField.path);
-                    expect(field).toBeUndefined();
-                });
-            } else {
-                console.log(`${modelName} Model have ALL DEFAULT fields defined`);
+            try {
+                const non_default_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('default', false);
+                if (DEFAULT_FIELDS.length > 0 || non_default_fields_model.length > 0) {
+                    non_default_fields_model.map(modelField => {
+                        const field = UNIQUE_FIELDS.find(f => f.name === modelField.path);
+                        expect(field).toBeUndefined();
+                    });
+                } else {
+                    console.log(`${modelName} Model have ALL DEFAULT fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
     });
 
     describe(`Validate ENUM fields for ${modelName}`, () => {
         test(`Should match all DEFAULT fields for ${modelName}`, (done) => {
-            if (ENUM_FIELDS.length > 0 || ENUM_FIELDS_MODEL > 0) {
-                ENUM_FIELDS.map( modelField => {
-                    const field = ENUM_FIELDS_MODEL.find( f => f.path === modelField.name);
-                    expect(field.name).toBe(modelField.path);
-                    expect(field.enumValues).toEqual(expect.arrayContaining(modelField.value));
-                });
-            } else {
-                console.log(`Model ${modelName} doesn't have enum fields defined`);
+            try {
+                if (ENUM_FIELDS.length > 0 || ENUM_FIELDS_MODEL > 0) {
+                    ENUM_FIELDS.map(modelField => {
+                        const field = ENUM_FIELDS_MODEL.find(f => f.path === modelField.name);
+                        expect(field.name).toBe(modelField.path);
+                        expect(field.enumValues).toEqual(expect.arrayContaining(modelField.value));
+                    });
+                } else {
+                    console.log(`Model ${modelName} doesn't have enum fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
 
         test(`Should match all NON ENUM fields for ${modelName}`, (done) => {
-            const non_enum_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('enum', false);
-            if (non_enum_fields_model.length > 0) {
-                non_enum_fields_model.map(modelField => {
-                    const field = ENUM_FIELDS.find(f => f.name === modelField.path);
-                    expect(field).toBeUndefined();
-                });
-            } else {
-                console.log(`${modelName} Model have ALL ENUM fields defined`);
+            try {
+                const non_enum_fields_model = FIND_FIELDS_WITH_ATTRIBUTE('enum', false);
+                if (non_enum_fields_model.length > 0) {
+                    non_enum_fields_model.map(modelField => {
+                        const field = ENUM_FIELDS.find(f => f.name === modelField.path);
+                        expect(field).toBeUndefined();
+                    });
+                } else {
+                    console.log(`${modelName} Model have ALL ENUM fields defined`);
+                }
+                done();
+            } catch (error) {
+                done.fail(error);
             }
-            done();
         });
     });
 
